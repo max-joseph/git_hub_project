@@ -114,6 +114,7 @@ int main(int argc, char **argv)
     al_init_primitives_addon();
     al_install_keyboard();
     int x[3], y[3];
+    int a = 3, b = a - 1, e = 0, c = rand() % 1000 , d = rand() % 1000;
     for (int i = 0; i < 3; i++) {
         x[i] = 450;
         y[i] = 450;
@@ -125,34 +126,40 @@ int main(int argc, char **argv)
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     while (!done) {
         al_flip_display();
+        al_draw_filled_circle(c, d, 20, gray);
+        if (e % 60 == 0) {
+            c = rand() % 1000;
+            d = rand() % 1000;
+        }
+        al_draw_rectangle(0, 0, 1000, 1000, green, 15);
         al_wait_for_event(event_queue, &ev);
         if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
             switch (ev.keyboard.keycode) {
                 case ALLEGRO_KEY_DOWN:
-                    for (int i = 0; i < 2; i++) {
-                        x[2 - i] = x[1 - i];
-                        y[2 - i] = y[1 - i];
+                    for (int i = 0; i < b; i++) {
+                        x[b - i] = x[b - 1 - i];
+                        y[b - i] = y[b - 1 - i];
                     }
                     y[0] = y[0] + 60;
                     break;
                 case ALLEGRO_KEY_UP:
-                    for (int i = 0; i < 2; i++) {
-                        x[2 - i] = x[1 - i];
-                        y[2 - i] = y[1 - i];
+                    for (int i = 0; i < b; i++) {
+                        x[b - i] = x[b - 1 - i];
+                        y[b - i] = y[b - 1 - i];
                     }
                     y[0] = y[0] - 60;
                     break;
                 case ALLEGRO_KEY_RIGHT:
-                    for (int i = 0; i < 2; i++) {
-                        x[2 - i] = x[1 - i];
-                        y[2 - i] = y[1 - i];
+                    for (int i = 0; i < b; i++) {
+                        x[b - i] = x[b - 1 - i];
+                        y[b - i] = y[b - 1 - i];
                     }
                     x[0] = x[0] + 60;
                     break;
                 case ALLEGRO_KEY_LEFT:
-                    for (int i = 0; i < 2; i++) {
-                        x[2 - i] = x[1 - i];
-                        y[2 - i] = y[1 - i];
+                    for (int i = 0; i < b; i++) {
+                        x[b - i] = x[b - 1 - i];
+                        y[b - i] = y[b - 1 - i];
                     }
                     x[0] = x[0] - 60;
                     break;
@@ -172,6 +179,7 @@ int main(int argc, char **argv)
                 al_draw_filled_rectangle(x[i], y[i], x[i] + 50, y[i] +50, green);
             }
         }
+        e++;
     }
     al_destroy_display(Display);
 
