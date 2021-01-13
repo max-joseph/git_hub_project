@@ -9,19 +9,27 @@ int arai(int x[100], int a){
     }
     return 0;
 }
-void point(int x, int y){
-    x = rand() % 990;
-    y = rand() % 990;
-}
-
-
+struct Coordinates{
+    int x, y;
+    
+};
+struct Movement{
+    int x, y;
+    Movement(int x, int y){
+        this-> x = x;
+        this-> y = y;
+    }
+};
 int main(int argc, char **argv)
 {
     if (!al_init()) {
         std::cerr << "failed to init allegro!";
         return 1;
     }
-    ALLEGRO_DISPLAY* Display = al_create_display(1000, 1000);
+    int screenSize;
+    cout << " enter screenSize" << endl;
+    cin >> screenSize;
+    ALLEGRO_DISPLAY* Display = al_create_display(screenSize, screenSize);
     if (!Display) {
         std::cerr << "faild to creat display!";
         return 1;
@@ -31,58 +39,70 @@ int main(int argc, char **argv)
     ALLEGRO_COLOR red = al_map_rgb(0,50,0);
     
     
-//    snake
   
     al_init_primitives_addon();
     al_install_keyboard();
-    ALLEGRO_BITMAP *bm = al_create_bitmap(1000, 1000);
-    
+
+    Coordinates cordinates[100];
+    for(int i=0; i<sizeof(cordinates);i++){
+        cordinates[i].x=0;
+        cordinates[i].y=0;
+    }
     int x[100], y[100];
-    int a = 3, b = a - 1, e = 0, c = rand() % 990, d = rand() % 990;
+    int body = 3, timer = 0, xPoint = rand() % 990, yPoint = rand() % 990;
+    int snakeSize;
+    cout << "enter snakeSize" << endl;
+    cin >> snakeSize;
     arai(x, 450);
     arai(y, 450);
     bool done = false;
     bool draw = false;
+    Movement lastMove = Movement(0,0);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     ALLEGRO_EVENT ev;
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     while (!done) {
         al_flip_display();
-        al_draw_filled_circle(c, d, 20, red);
-        if (e % 60 == 0) {
-            point(c, d);
+        al_draw_filled_circle(xPoint, yPoint, 20, red);
+        if (timer % 30 == 0) {
+            xPoint = rand() % (screenSize - 20);
+            yPoint = rand() % (screenSize - 20);
         }
-        al_draw_rectangle(0, 0, 1000, 1000, blue, 15);
+        al_draw_rectangle(0, 0, screenSize, screenSize, blue, 10);
         al_wait_for_event(event_queue, &ev);
         if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
             switch (ev.keyboard.keycode) {
                 case ALLEGRO_KEY_DOWN:
-                    for (int i = 0; i < b; i++) {
-                        x[b - i] = x[b - 1 - i];
-                        y[b - i] = y[b - 1 - i];
+                    for (int i = 0; i < body - 1; i++) {
+                        x[body - 1 - i] = x[body - 2 - i];
+                        y[body - 1 - i] = y[body - 2 - i];
                     }
                     y[0] = y[0] + 35;
+                    lastMove = Movement(0,snakeSize + 5);
                     break;
                 case ALLEGRO_KEY_UP:
-                    for (int i = 0; i < b; i++) {
-                        x[b - i] = x[b - 1 - i];
-                        y[b - i] = y[b - 1 - i];
+                    for (int i = 0; i < body - 1; i++) {
+                        x[body - 1 - i] = x[body - 2 - i];
+                        y[body - 1 - i] = y[body - 2 - i];
                     }
                     y[0] = y[0] - 35;
+                    lastMove = Movement(0,-snakeSize + 5);
                     break;
                 case ALLEGRO_KEY_RIGHT:
-                    for (int i = 0; i < b; i++) {
-                        x[b - i] = x[b - 1 - i];
-                        y[b - i] = y[b - 1 - i];
+                    for (int i = 0; i < body - 1; i++) {
+                        x[body - 1 - i] = x[body - 2 - i];
+                        y[body - 1 - i] = y[body - 2 - i];
                     }
                     x[0] = x[0] + 35;
+                    lastMove = Movement(snakeSize + 5,0);
                     break;
                 case ALLEGRO_KEY_LEFT:
-                    for (int i = 0; i < b; i++) {
-                        x[b - i] = x[b - 1 - i];
-                        y[b - i] = y[b - 1 - i];
+                    for (int i = 0; i < body - 1; i++) {
+                        x[body - 1 - i] = x[body - 2 - i];
+                        y[body - 1 - i] = y[body - 2 - i];
                     }
                     x[0] = x[0] - 35;
+                    lastMove = Movement(-snakeSize + 5,0);
                     break;
                 case ALLEGRO_KEY_ESCAPE:
                     done = true;
@@ -91,16 +111,21 @@ int main(int argc, char **argv)
                     draw = done;
             }
         }
-        
+        for (int i = 0; i < body - 1; i++) {
+            x[body - 1 - i] = x[body - 2 - i];
+            y[body - 1 - i] = y[body - 2 - i];
+        }
+        x[0] = x[0] + lastMove.x;
+        y[0] = y[0] + lastMove.y;
+        timer++;
         al_flip_display();
         al_clear_to_color(al_map_rgb(200, 200, 200));
         al_flip_display();
         if (draw == done) {
             for (int i = 0; i < 3; i++) {
-                al_draw_filled_rectangle(x[i], y[i], x[i] + 30, y[i] +30, blue);
+                al_draw_filled_rectangle(x[i], y[i], x[i] + snakeSize, y[i] + snakeSize, blue);
             }
         }
-        e++;
     }
     
 
